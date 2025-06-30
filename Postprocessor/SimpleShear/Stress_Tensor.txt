@@ -1,0 +1,190 @@
+; To obtain the stress tensor and its normal and tangential components
+
+def tensor
+    array con_tensor(4,1)
+    array tan_tensor(4,1)
+    array strensor(4,3)
+    cp=contact_head
+    loop while cp # null
+       if c_nforce(cp) # 0.0
+          b2=c_ball2(cp)
+          section      
+            if pointer_type(b2)=101
+               exit section        ; fail to consider the effect of boundary forces
+            else 
+               bp1=c_ball1(cp)
+               bp2=c_ball2(cp)
+               if (b_x(bp2)-b_x(bp1))=0.0
+                  alpha=pi/2
+               else
+                  if b_y(bp2) # b_y(bp1)
+                     alpha=atan(c_yun(cp)/c_xun(cp))
+                     if alpha<0.0
+                        alpha=pi+alpha
+                     end_if
+                  else
+                     if c_xun(cp)<0
+                        alpha=pi
+                     else
+                        alpha=0.0
+                     end_if    
+                  end_if
+               end_if    
+               contf=c_nforce(cp)
+               tangf=c_sforce(cp)
+ 
+               clp1=b_clump(bp1)
+               clp2=b_clump(bp2)
+               if (cl_x(clp2)-cl_x(clp1))=0.0
+                  beta=pi/2
+               else
+                  if cl_y(clp2) # cl_y(clp1)
+                     beta=atan((cl_y(clp2)-cl_y(clp1))/(cl_x(clp2)-cl_x(clp1)))
+                     if beta<0.0
+                        beta=pi+beta
+                     end_if
+                  else
+                     if cl_x(clp2) < cl_x(clp1)
+                        beta=pi
+                     else
+                        beta=0
+                     end_if
+                  end_if
+               end_if
+               branength=sqrt((cl_y(clp2)-cl_y(clp1))^2+(cl_x(clp2)-cl_x(clp1))^2)
+
+               con_tensor(1,1)=con_tensor(1,1)+contf*branength*cos(alpha)*cos(alpha)/(new_xwidth*new_height)
+               con_tensor(2,1)=con_tensor(2,1)+contf*branength*cos(alpha)*sin(alpha)/(new_xwidth*new_height)
+               con_tensor(3,1)=con_tensor(3,1)+contf*branength*sin(alpha)*cos(alpha)/(new_xwidth*new_height)
+               con_tensor(4,1)=con_tensor(4,1)+contf*branength*sin(alpha)*sin(alpha)/(new_xwidth*new_height)
+               tan_tensor(1,1)=tan_tensor(1,1)+tangf*branength*cos(alpha+pi/2)*cos(alpha)/(new_xwidth*new_height)
+               tan_tensor(2,1)=tan_tensor(2,1)+tangf*branength*cos(alpha+pi/2)*sin(alpha)/(new_xwidth*new_height)
+               tan_tensor(3,1)=tan_tensor(3,1)+tangf*branength*sin(alpha+pi/2)*cos(alpha)/(new_xwidth*new_height)
+               tan_tensor(4,1)=tan_tensor(4,1)+tangf*branength*sin(alpha+pi/2)*sin(alpha)/(new_xwidth*new_height)
+            end_if
+          end_section
+       end_if
+       cp=c_next(cp)
+    end_loop
+
+    loop dimen (1,4)
+         strensor(dimen,1)=con_tensor(dimen,1)+tan_tensor(dimen,1)          ; form the stress tensor through normal and tangential components
+         strensor(dimen,2)=con_tensor(dimen,1)
+         strensor(dimen,3)=tan_tensor(dimen,1)
+    end_loop
+end
+
+tensor
+
+def projection
+    prin_angle_1=atan((strensor(2,1)+strensor(3,1))/(strensor(1,1)-strensor(4,1)))/2.0   ; close to horizontal direction and roughly assume that strensor(2,1) and strensor(3,1) are equal (clockwise direction is positive)
+    prin_angle_2=prin_angle_1+pi/2.0
+    prin_stress_original_minor=0.5*(strensor(1,1)+strensor(4,1)-sqrt((strensor(1,1)-strensor(4,1))^2+(strensor(2,1)+strensor(3,1))^2))
+    prin_stress_original_major=0.5*(strensor(1,1)+strensor(4,1)+sqrt((strensor(1,1)-strensor(4,1))^2+(strensor(2,1)+strensor(3,1))^2))
+ 
+;*************using a different method to determine the inclination of principal planee, considering modification of the inequation of strensor(2,1) and strensor(3,1)***************   
+;    slope=(strensor(3,1)+strensor(2,1))/(strensor(4,1)-strensor(1,1))
+;    center_x=0.5*(slope*(strensor(2,1)-strensor(3,1))+strensor(1,1)+strensor(4,1))
+;    prin_angle_1=0.5*atan(-strensor(3,1)/(strensor(4,1)-center_x))
+;    prin_angle_2=pi/2.0+0.5*atan(strensor(2,1)/(strensor(1,1)-center_x))          ; close prediction of another principal direction with shear stress or tangential stress zero, while these two directions may not be perpendicular (clockwise direction positive).
+
+;    radius_mohr=sqrt((strensor(4,1)-center_x)^2+strensor(3,1)^2)
+;    prin_stress_original_1=center_x-radius_mohr
+;    prin_stress_original_2=center_x+radius_mohr
+;*************using a different method to determine the inclination of principal planes, considering modification of the inequation of strensor(2,1) and strensor(3,1)*************** 
+    
+    contf_vector_11=con_tensor(1,1)*cos(prin_angle_1)+con_tensor(2,1)*sin(prin_angle_1)        ; do projection of force tensor including normal contact force and tangential contact force tenor onto the first principal direction
+    contf_vector_12=con_tensor(3,1)*cos(prin_angle_1)+con_tensor(4,1)*sin(prin_angle_1)
+    tangf_vector_11=tan_tensor(1,1)*cos(prin_angle_1)+tan_tensor(2,1)*sin(prin_angle_1)
+    tangf_vector_12=tan_tensor(3,1)*cos(prin_angle_1)+tan_tensor(4,1)*sin(prin_angle_1)
+
+    contf_vector_21=con_tensor(1,1)*cos(prin_angle_2)+con_tensor(2,1)*sin(prin_angle_2)        ; do projection of force tensor including normal contact force and tangential contact force tenor onto the second principal direction
+    contf_vector_22=con_tensor(3,1)*cos(prin_angle_2)+con_tensor(4,1)*sin(prin_angle_2)
+    tangf_vector_21=tan_tensor(1,1)*cos(prin_angle_2)+tan_tensor(2,1)*sin(prin_angle_2)
+    tangf_vector_22=tan_tensor(3,1)*cos(prin_angle_2)+tan_tensor(4,1)*sin(prin_angle_2)
+
+    gama_1=atan(contf_vector_12/contf_vector_11)      ; asscess the inclination angle of resultant projected force vector in absolute coordinate system.
+    if contf_vector_11<0
+       gama_1=gama_1+pi
+    end_if
+
+    theta_1=atan(tangf_vector_12/tangf_vector_11)
+    if tangf_vector_11<0
+       theta_1=theta_1+pi
+    end_if
+
+    gama_2=atan(contf_vector_22/contf_vector_21)
+    if contf_vector_21<0
+       gama_2=gama_2+pi
+    end_if
+
+    theta_2=atan(tangf_vector_22/tangf_vector_21)
+    if tangf_vector_21<0
+       theta_2=theta_2+pi
+    end_if
+
+    prin_stress_contf_1=sqrt(contf_vector_11^2+contf_vector_12^2)*cos(gama_1-prin_angle_1)       ; projected force vector (expressed in absolute coordinate system) once again projected onto the first principal direction- for normal part
+    prin_stress_tangf_1=sqrt(tangf_vector_11^2+tangf_vector_12^2)*cos(theta_1-prin_angle_1)
+    prin_stress_contf_2=sqrt(contf_vector_21^2+contf_vector_22^2)*cos(gama_2-prin_angle_2)       ; projected force vector (expressed in absolute coordinate system) once again projected onto the second principal direction- for normal part
+    prin_stress_tangf_2=sqrt(tangf_vector_21^2+tangf_vector_22^2)*cos(theta_2-prin_angle_2)
+
+    devia_stress_contf_1=sqrt(contf_vector_11^2+contf_vector_12^2)*sin(gama_1-prin_angle_1)      ; projected force vector (expressed in absolute coordinate system) once again projected onto the first principal direction- for tangential part to check the deviation degree from principal direction
+    devia_stress_tangf_1=sqrt(tangf_vector_11^2+tangf_vector_12^2)*sin(theta_1-prin_angle_1)
+    devia_stress_contf_2=sqrt(contf_vector_21^2+contf_vector_22^2)*sin(gama_2-prin_angle_2)      ; projected force vector (expressed in absolute coordinate system) once again projected onto the first principal direction- for tangential part to check the deviation degree from principal direction
+    devia_stress_tangf_2=sqrt(tangf_vector_21^2+tangf_vector_22^2)*sin(theta_2-prin_angle_2)
+
+
+    prin_stress_1=prin_stress_contf_1+prin_stress_tangf_1
+    prin_stress_2=prin_stress_contf_2+prin_stress_tangf_2
+    devia_stress_1=devia_stress_contf_1+devia_stress_tangf_1      ; represent the shear stress/force on the principla stress plane and to check the deviation degree from the true principal direction
+    devia_stress_2=devia_stress_contf_2+devia_stress_tangf_2
+   
+    devia_stress_final=prin_stress_2-prin_stress_1                ; deviatoric stress
+    devia_stress_contf=prin_stress_contf_2-prin_stress_contf_1    ; deviatoric stress-normal part
+    devia_stress_tangf=prin_stress_tangf_2-prin_stress_tangf_1    ; deviatoric stress-tangential part
+end
+
+projection
+
+def out_tensor
+    loop column (1,3)      
+      loop row (1,4)
+           if row=1
+              strensor(row,column)='   '+string(strensor(row,column))
+           else
+              strensor(row,column)=string(strensor(row,column))                
+           end_if
+      end_loop        
+    end_loop
+    
+    status=open('file_tensor.fio', 1, 1)
+    status=write(strensor,12)
+    status=close
+end
+
+out_tensor
+
+;********************************print parameters***********************
+
+print prin_stress_original_minor
+print prin_stress_original_major
+
+print prin_stress_contf_1
+print prin_stress_tangf_1
+print prin_stress_1
+
+print prin_stress_contf_2
+print prin_stress_tangf_2
+print prin_stress_2
+
+print devia_stress_contf_1
+print devia_stress_tangf_1
+print devia_stress_1
+
+print devia_stress_contf_2
+print devia_stress_tangf_2
+print devia_stress_2
+
+print devia_stress_final
+print devia_stress_contf
+print devia_stress_tangf

@@ -1,0 +1,13 @@
+clear;
+proportion='30';
+FRACTION=['../../Simulation_DATA/BiaxialShearTest/' proportion 'percent/'];
+posxs=dlmread([FRACTION 'posx_info.asc'],' ');
+posys=dlmread([FRACTION 'posy_info.asc'],' ');
+timestep=1;
+
+%%
+particle_num=5025;
+rigid_num=ceil((1-str2num(proportion)/100)*particle_num);
+soft_num=particle_num-rigid_num;
+
+posx=posxs[timestep,3:3+particle_num-1];
