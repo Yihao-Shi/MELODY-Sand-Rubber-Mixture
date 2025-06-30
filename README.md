@@ -33,7 +33,7 @@ Key features:
 
 ## 🧰 Installation
 
-For detailed instructions, please refer to [`MELODY_USER_GUIDE_3.94.pdf`](https://github.com/Yihao-Shi/MELODY-Sand-Rubber-Mixture/blob/main/MELODY2D_3.94_Package/MELODY_USER_GUIDE_3.94.pdf) in this repository.
+For detailed instructions, please refer to [`MELODY_USER_GUIDE_3.94.pdf`](https://github.com/Yihao-Shi/MELODY-Sand-Rubber-Mixture/blob/main/MELODY_USER_GUIDE_3.94.pdf) in this repository.
 
 ## 📈 Postprocessing
 
@@ -49,7 +49,7 @@ Tools are provided in the `postprocessing/` folder for:
 ## 🙏 Acknowledgments
 
 This code is based on [MELODY 2D v3.94](http://guilhem.mollon.free.fr/Theme12_Eng.html) developed by **Guilhem Mollon** (INSA Lyon).  
-We gratefully acknowledge the original author to provide the full user guide ([`MELODY_USER_GUIDE_3.94.pdf`](https://github.com/Yihao-Shi/MELODY-Sand-Rubber-Mixture/blob/main/MELODY2D_3.94_Package/MELODY_USER_GUIDE_3.94.pdf)) in this repository for reference.
+We gratefully acknowledge the original author to provide the full user guide ([`MELODY_USER_GUIDE_3.94.pdf`](https://github.com/Yihao-Shi/MELODY-Sand-Rubber-Mixture/blob/main/MELODY_USER_GUIDE_3.94.pdf)) in this repository for reference.
 
 ---
 
