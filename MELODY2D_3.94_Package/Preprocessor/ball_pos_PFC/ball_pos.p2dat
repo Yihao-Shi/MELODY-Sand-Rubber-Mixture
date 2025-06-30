@@ -1,0 +1,51 @@
+new
+
+define setup 
+    height=2.5
+    width=height/2
+    x_left=-width/2
+    x_right=width/2
+    y_top=height/2
+    y_bottom=-height/2
+    
+    poros=0.2
+    rlo=0.01
+    rhi=0.015
+    ballFriction=0.0
+    wallFriction=0.0
+end
+@setup
+
+domain extent [1.5*x_left] [1.5*x_right] [1.5*y_bottom] [1.5*y_top]
+cmat default model linear method deformability emod 1e8 kratio 2.5
+wall generate name 'vessel' box @x_left @x_right @y_bottom @y_top expand 1.5
+set random 10101
+
+ball distribute porosity @poros radius @rlo @rhi box @x_left @x_right @y_bottom @y_top
+ball attribute density 2650 damp 0.7
+ball property fric @ballFriction
+wall property fric @wallFriction
+cycle 1000 calm 10
+solve mratio 1e-5
+pause key
+
+define setfile
+    ball_pos=array.create(ball.num,1)
+    info=array.create(1,1)
+    count=1
+    loop foreach b ball.list
+        ball_pos(count,1)=string(ball.pos.x(b))+' '+string(ball.pos.y(b))+' '+string(ball.radius(b))
+        count=count+1
+    endloop
+    Contact_info_file_name = 'Ball_pos.txt'
+    status = file.open(Contact_info_file_name,2,1)
+    status = file.write(ball_pos,ball.num)
+    status = file.close()
+    
+    Contact_info_file_name = 'Ball&Wall_info.txt'
+    info(1,1)=string([-width/2])+' '+string([width/2])+' '+string([-height/2])+' '+string([height/2])+' '+string(rlo)+' '+string(rhi)+' '+string(ball.num)
+    status = file.open(Contact_info_file_name,2,1)
+    status = file.write(info,1)
+    status = file.close()
+end
+@setfile

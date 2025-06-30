@@ -1,0 +1,58 @@
+# depslib dependency file v1.0
+1591029923 source:c:\meshfree\sources\melody2d\code\main.cpp
+	<iostream>
+	<fstream>
+	<iomanip>
+	<vector>
+	<string>
+	<cmath>
+	<algorithm>
+	<omp.h>
+	"Tools.h"
+	"Material.h"
+	"Contact_Law.h"
+	"Node.h"
+	"Gauss.h"
+	"Border.h"
+	"Contact_Element.h"
+	"Body.h"
+	"Spy.h"
+	"IO.h"
+	"Solver.h"
+	"Proximity.h"
+	"Graphic.h"
+	"Monitoring.h"
+
+1589870647 c:\meshfree\sources\melody2d\code\tools.h
+
+1581343794 c:\meshfree\sources\melody2d\code\material.h
+
+1581343794 c:\meshfree\sources\melody2d\code\contact_law.h
+
+1589359399 c:\meshfree\sources\melody2d\code\node.h
+
+1589357335 c:\meshfree\sources\melody2d\code\gauss.h
+
+1581343794 c:\meshfree\sources\melody2d\code\border.h
+
+1581343794 c:\meshfree\sources\melody2d\code\contact_element.h
+
+1595322232 c:\meshfree\sources\melody2d\code\body.h
+	"Model.h"
+
+1589982030 c:\meshfree\sources\melody2d\code\model.h
+
+1581343794 c:\meshfree\sources\melody2d\code\spy.h
+
+1595326332 c:\meshfree\sources\melody2d\code\io.h
+	<sstream>
+
+1589380036 c:\meshfree\sources\melody2d\code\solver.h
+	"Proximity.h"
+
+1595260106 c:\meshfree\sources\melody2d\code\proximity.h
+
+1592295396 c:\meshfree\sources\melody2d\code\graphic.h
+
+1592405559 c:\meshfree\sources\melody2d\code\monitoring.h
+
